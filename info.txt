@@ -1,0 +1,70 @@
+pamsel 1.4.0
+(c) 2021 A. Raphael (GPL 3)
+idicnet.de/pamsel
+
+
+ModSecurity - together with the OWASP core rules - is a powerful web application firewall (WAF) 
+It protects your server against a wide range of HTTP-attacks (SQL injection, cross-site scripting etc.)
+
+However ModSecurity (like any WAF) produces sometimes false positives.
+To eliminate these, you need to tune your configuration and add rule exclusions. (Whitelisting)
+
+It can be a frustrating and time consuming process to inspect the logfiles.
+pamsel ("PArse ModSecurity ErrorLog") is a small tool that might help you with this.
+(Alas it has no real documentation yet. Maybe sometime...)
+
+
+
+$ pamsel --help
+
+pamsel - scans modsecurity logfiles (apache error and modsec audit)
+Usage: pamsel OPTIONS
+
+Field display options:
+  -d  date/time
+  -u  requested url
+  -i  rule id
+  -m  modsec message
+  -t  rule tag (only OWASP_CRS/ tags are extracted!)
+  -s  severity
+  -r  referrer IP
+  -D  objected data (cut to first 80 chars. use -A to get full info)
+  -n  consecutive number (for lookup in audit log)
+  -a  unique modsec-id
+  field output is ordered according to the occurrence of the above options
+  --def = -ndsimub
+  --sep SEPARATOR (default is tab)
+
+General options:
+  -v              verbose
+  --skipped       show only skipped entries (inverse verbose)
+  --fulldate      show full date (default is cut at first dot)
+  -l              list format (default is csv)
+  -c		  dont't show if blocked (anomaly score exceeded)
+  -x id1,id2,..   exclude rules from parsing
+  -A NUMBER[-ABCD..|+ABCD..]
+                  list info from audit-log for given entry (number from -n)
+                  -ABCD.. exclude specified audit-sections ("all, except")
+                  +ABCD.. show only the specified audit-sections ("only these")
+  -F AUDITLOGFILE default is /var/www/apache2/modsec_audit.log
+                  note: take care that the audit-logfile corresponds with your error-log
+  -f ERRORLOG     if not given, pamsel reads from stdin/pipe
+  -y              use yesterdays logs (error.log.1 and modsec_audit.log.1) (overwrites other logfile options)
+  -V --version    version info
+  -h --help       this
+
+Some examples:
+  sudo cat /var/log/apache2/error.log | sudo ./pamsel -dimubT
+      lists all requests and rejections (tab-separated, one per line) with date, rule-id, message and url
+  sudo cat /var/log/apache2/error.log | sudo ./pamsel -im | sort | uniq -c
+      how often a rule is triggered
+  sudo cat /var/log/apache2/error.log | sudo ./pamsel -dim -x 920350,930130
+      exclude rules from listing
+  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu
+      -n gives every request an unique number...
+      ...which can be used to show the related info in audit-log:
+  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu -A 136
+      show only audit-sections B and H, to reduce the amount of information:
+  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu -A 136+BH
+      '-': all, except,  '+': only these  (A is listed anyway)
+

@@ -1,0 +1,12 @@
+pamsel changelog
+
+06.12.2021  1.4.0:	new option -y (use yesterdays logs)
+01.12.2021  1.3.1:	colored section title in autid output
+30.11.2021  1.3.0:	removed -b (default now), added -c instead
+			removed -T, added --sep instead (tab is now default separator)
+			improved audit output (-A)
+			cleaned code (now available)
+Nov.  2021  1.2.0:	added option --def (= -ndsimub), more colored output
+Nov.  2021  1.1.0:	added several new options and colored output
+Nov.  2021  1.0.1:	bugfix:	Exclusion of auditlog-sections ( -A #-ABCD..) not working if not separated by blank line in log. Fixed
+Nov.  2021  1.0.0:	first beta
