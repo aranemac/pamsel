@@ -32,7 +32,7 @@ Field display options:
   -n  consecutive number (for lookup in audit log)
   -a  unique modsec-id
   field output is ordered according to the occurrence of the above options
-  --def = -ndsimub
+  --def = -ndsimu
   --sep SEPARATOR (default is tab)
 
 General options:
