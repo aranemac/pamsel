@@ -1,0 +1,2 @@
+todo soon:
+add an option to supress colored output. (very annoying, when redirecting to file)
