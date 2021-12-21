@@ -1,5 +1,6 @@
 pamsel changelog
 
+21.12.2021  1.4.1:      skip "Warning. String match" in nonverbose mode now only in self defined rules. (Usually whitelisting rules without 'nolog')
 06.12.2021  1.4.0:	new option -y (use yesterdays logs)
 01.12.2021  1.3.1:	colored section title in autid output
 30.11.2021  1.3.0:	removed -b (default now), added -c instead
