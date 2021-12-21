@@ -1,10 +1,11 @@
 // pamsel 'Parse ModSecurity Error-Log'
-// V 1.4.0 (c) 2021, A. Raphael - GPL 3
-// contact: idicnet.de/pamsel
+// V 1.4.1 (c) 2021, A. Raphael
+// License: MIT
+// Contact: idicnet.de/pamsel
 
 
-const char VERSION[] = "1.4.0";
-const char LEGAL[] = "(c) 2021, A. Raphael - GPL 3";
+const char VERSION[] = "1.4.1";
+const char LEGAL[] = "(c) 2021, A. Raphael - (MIT license)";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -177,7 +178,8 @@ int main (int argc, char* argv[])
 
         // user-defined whitelisting-rules without 'nolog' (Message depends on configuration):
         if ( strstr( buf, "ModSecurity: Access allowed" ) )   {  skipflags |= FLAG_ALLOWED;  }
-        // espec. this one can occur with high frequency on whitelistings without 'nolog'
+
+        // this one can occur with high frequency on whitelistings without 'nolog' (unwanted) but also in OWASP-rules (wanted) - see below
         if ( strstr( buf, "ModSecurity: Warning. String match" ) )   {  skipflags |= FLAG_MATCH;  }
 
         highscore = ( strstr( buf, "Anomaly Score Exceeded" ) != NULL );
@@ -227,6 +229,9 @@ int main (int argc, char* argv[])
         // All lines with same modsec-id belong to the same request
         if ( strcmp( field[MS_UID], lastuid ) != 0 )  n++;
 
+
+	if ( (skipflags & FLAG_MATCH) && atoi(field[MS_ID])>=100000 ) skipflags ^= FLAG_MATCH;
+	// skip "Warning. String match" only in self defined rules. (Usually whitelisting rules without 'nolog')
 
         if ( strstr( exclude, field[MS_ID] ) ) continue;  // exclude whitelisted rules
 
@@ -451,7 +456,7 @@ void showhelp( void )
         printf("  -n  consecutive number (for lookup in audit log)\n");
         printf("  -a  unique modsec-id\n");
         printf("  field output is ordered according to the occurrence of the above options\n");
-        printf("  --def = -ndsimub\n");
+        printf("  --def = -ndsimu\n");
         printf("  --sep SEPARATOR (default is tab)\n");
         printf("\nGeneral options:\n");
         printf("  -v              verbose\n");
