@@ -1,15 +1,16 @@
 // pamsel 'Parse ModSecurity Error-Log'
-// V 1.4.1 (c) 2021, A. Raphael
+// V 1.5.0 (c) 2021, A. Raphael
 // License: MIT
 // Contact: idicnet.de/pamsel
 
 
-const char VERSION[] = "1.4.1";
+const char VERSION[] = "1.5.0";
 const char LEGAL[] = "(c) 2021, A. Raphael - (MIT license)";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
+#include <unistd.h>
 
 const char DEFLOG[] = "/var/log/apache2/error.log";
 const char DEFAUDIT[] = "/var/log/apache2/modsec_audit.log";
@@ -36,13 +37,13 @@ char logfile[SBUF];
 char auditlog[SBUF];
 char sep;
 
-const char ESC_RED[]   = "\033[0;31m";
-const char ESC_GREY[]  = "\033[1;30m";
-const char ESC_CYAN[]  = "\033[0;36m";
-//const char ESC_BROWN[] = "\033[0;33m";
-const char ESC_GREEN[] = "\033[0;32m";
-const char ESC_BLUE[]  = "\033[1;34m";
-const char ESC_RESET[] = "\033[0m";
+char ESC_RED[]   = "\033[0;31m";
+char ESC_GREY[]  = "\033[1;30m";
+char ESC_CYAN[]  = "\033[0;36m";
+//char ESC_BROWN[] = "\033[0;33m";
+char ESC_GREEN[] = "\033[0;32m";
+char ESC_BLUE[]  = "\033[1;34m";
+char ESC_RESET[] = "\033[0m";
 
 
 char* strncpy2( char *dst, char *src, size_t n )  {  strncpy( dst, src, n );  dst[n-1] = 0;  return dst;  }
@@ -124,12 +125,14 @@ int main (int argc, char* argv[])
    for ( int i=0; i<strlen(options); i++ )
         {  if ( ! strchr( VALIDOPTIONS, options[i] ) ) { printf("Invalid option: -%c\n", options[i]);  return 1; }  }
 
+   // colored output only to console  (escape sequences are unwanted if output is redirected or piped)
+   if ( ! isatty( fileno( stdout )))  {  *ESC_RED = *ESC_GREY = *ESC_CYAN = *ESC_GREEN = *ESC_BLUE = *ESC_RESET = 0;  }
+
    if ( strchr( options, 'h' ) )  {  showhelp();  return 0;  }
    if ( strchr( options, 'V' ) )  {  printf("pamsel %s\n%s\n", VERSION, LEGAL );  return 0;  }
 
    listformat = ( strchr( options, 'l' ) ? 1 : 0 );
    compressed = ( strchr( options, 'c' ) ? 1 : 0 );
-
 
    if ( *logfile == 0 ) strcpy( logfile, "/dev/stdin" );
 
