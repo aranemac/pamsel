@@ -1,5 +1,6 @@
 pamsel changelog
 
+22.12.2021  1.5.0:	colored output only to console  (escape sequences are unwanted if output is redirected or piped)
 21.12.2021  1.4.1:      skip "Warning. String match" in nonverbose mode now only in self defined rules. (Usually whitelisting rules without 'nolog')
 06.12.2021  1.4.0:	new option -y (use yesterdays logs)
 01.12.2021  1.3.1:	colored section title in autid output
