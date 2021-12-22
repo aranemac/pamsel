@@ -14,3 +14,6 @@ pamsel is a small tool that might help you a bit with this.
 sample output:
 
 ![pamsel output](pamsel-output.jpg)
+
+last changes:
+22.12.2021: colored output now only to console (escape sequences are unwanted if output is redirected or piped)
