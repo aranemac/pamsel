@@ -1,5 +1,5 @@
-pamsel 1.5.0
-(c) 2021 A. Raphael (MIT)
+pamsel 1.6.0
+(c) 2021.2022 A. Raphael (MIT)
 idicnet.de/pamsel
 
 
@@ -36,35 +36,39 @@ Field display options:
   --sep SEPARATOR (default is tab)
 
 General options:
+  -e              use current apache-logfiles (error.log and modsec_audit.log) (overwrites other logfile options)
+  -y              use yesterdays logs (error.log.1 and modsec_audit.log.1) (overwrites other logfile options)
+  -f ERRORLOG     if none of -e,-y,-f is given, pamsel reads from stdin/pipe
+  -F AUDITLOGFILE default is modsec_audit.log
+                  note: take care that the audit-logfile corresponds with your error-log
   -v              verbose
   --skipped       show only skipped entries (inverse verbose)
   --fulldate      show full date (default is cut at first dot)
   -l              list format (default is csv)
-  -c		  dont't show if blocked (anomaly score exceeded)
+  -c              dont't show if blocked (anomaly score exceeded)
   -x id1,id2,..   exclude rules from parsing
   -A NUMBER[-ABCD..|+ABCD..]
                   list info from audit-log for given entry (number from -n)
                   -ABCD.. exclude specified audit-sections ("all, except")
                   +ABCD.. show only the specified audit-sections ("only these")
-  -F AUDITLOGFILE default is /var/www/apache2/modsec_audit.log
-                  note: take care that the audit-logfile corresponds with your error-log
-  -f ERRORLOG     if not given, pamsel reads from stdin/pipe
-  -y              use yesterdays logs (error.log.1 and modsec_audit.log.1) (overwrites other logfile options)
   -V --version    version info
   -h --help       this
 
 Some examples:
-  sudo cat /var/log/apache2/error.log | sudo ./pamsel -dimubT
+  sudo ./pamsel -e --def
+      run pamsel on current logfiles with default options
+  sudo ./pamsel -e -dimubT
       lists all requests and rejections (tab-separated, one per line) with date, rule-id, message and url
-  sudo cat /var/log/apache2/error.log | sudo ./pamsel -im | sort | uniq -c
-      how often a rule is triggered
-  sudo cat /var/log/apache2/error.log | sudo ./pamsel -dim -x 920350,930130
+  sudo ./pamsel -y -im | sort | uniq -c
+      how often a rule was triggered yesterday
+  sudo ./pamsel -e -dim -x 920350,930130
       exclude rules from listing
-  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu
+  sudo ./pamsel -e -nrmu
       -n gives every request an unique number...
       ...which can be used to show the related info in audit-log:
-  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu -A 136
+  sudo ./pamsel -e -nrmu -A 136
       show only audit-sections B and H, to reduce the amount of information:
-  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu -A 136+BH
+  sudo ./pamsel -e -nrmu -A 136+BH
       '-': all, except,  '+': only these  (A is listed anyway)
-
+  sudo ./pamsel -f anold.log --def
+      parse other logfiles
