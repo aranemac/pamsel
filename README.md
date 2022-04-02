@@ -17,4 +17,5 @@ sample output:
 
 last changes:
 
+02.04.2022: new option -e (use default logfiles)
 22.12.2021: colored output now only to console (escape sequences are unwanted if output is redirected or piped)
