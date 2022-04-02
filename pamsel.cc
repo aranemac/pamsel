@@ -1,10 +1,10 @@
 // pamsel 'Parse ModSecurity Error-Log'
-// V 1.5.0 (c) 2021, A. Raphael
+// V 1.6.0 (c) 2021,2022  A. Raphael
 // License: MIT
 // Contact: idicnet.de/pamsel
 
 
-const char VERSION[] = "1.5.0";
+const char VERSION[] = "1.6.0";
 const char LEGAL[] = "(c) 2021, A. Raphael - (MIT license)";
 
 #include <stdio.h>
@@ -15,7 +15,7 @@ const char LEGAL[] = "(c) 2021, A. Raphael - (MIT license)";
 const char DEFLOG[] = "/var/log/apache2/error.log";
 const char DEFAUDIT[] = "/var/log/apache2/modsec_audit.log";
 const char DEFSEP = '\t';
-const char VALIDOPTIONS[] = "simturdanDclfFyxAvhV";
+const char VALIDOPTIONS[] = "simturdanDclfFeyxAvhV";
 enum longoptions { OPT_NONE, OPT_DEBUG, OPT_DEFAULT, OPT_FULLDATE, OPT_SKIPPED, OPT_SEPARATOR };
 
 #define SBUF 1000
@@ -136,6 +136,11 @@ int main (int argc, char* argv[])
 
    if ( *logfile == 0 ) strcpy( logfile, "/dev/stdin" );
 
+   if ( strchr( options, 'e' ) )  // use current error logs. overwrites other logfile options
+   {
+        strcpy( logfile,  DEFLOG   );
+        strcpy( auditlog, DEFAUDIT );
+   }
    if ( strchr( options, 'y' ) )  // use yesterdays logs. overwrites other logfile options
    {
         strcpy( logfile,  DEFLOG   );  strcat( logfile, ".1" );
@@ -462,6 +467,11 @@ void showhelp( void )
         printf("  --def = -ndsimu\n");
         printf("  --sep SEPARATOR (default is tab)\n");
         printf("\nGeneral options:\n");
+        printf("  -e              use current apache-logfiles (error.log and modsec_audit.log) (overwrites other logfile options)\n");
+        printf("  -y              use yesterdays logs (error.log.1 and modsec_audit.log.1) (overwrites other logfile options)\n");
+        printf("  -f ERRORLOG     if none of -e,-y,-f is given, pamsel reads from stdin/pipe\n");
+        printf("  -F AUDITLOGFILE default is modsec_audit.log\n");
+        printf("                  note: take care that the audit-logfile corresponds with your error-log\n");
         printf("  -v              verbose\n");
         printf("  --skipped       show only skipped entries (inverse verbose)\n");
         printf("  --fulldate      show full date (default is cut at first dot)\n");
@@ -474,26 +484,26 @@ void showhelp( void )
         printf("                  -ABCD.. exclude specified audit-sections (\"all, except\")\n");
         printf("                  +ABCD.. show only the specified audit-sections (\"only these\")\n");
         //printf("  -F --alog AUDITLOGFILE\n");
-        printf("  -F AUDITLOGFILE default is /var/log/apache2/modsec_audit.log\n");
-        printf("                  note: take care that the audit-logfile corresponds with your error-log\n");
-        printf("  -f ERRORLOG     if not given, pamsel reads from stdin/pipe\n");
-        printf("  -y              use yesterdays logs (error.log.1 and modsec_audit.log.1) (overwrites other logfile options)\n");
         printf("  -V --version    version info\n");
         printf("  -h --help       this\n");
         printf("\nSome examples:\n");
-        printf("  sudo cat /var/log/apache2/error.log | sudo ./pamsel -dimubT\n");
+        printf("  sudo ./pamsel -e --def\n");
+        printf("      run pamsel on current logfiles with default options\n");
+        printf("  sudo ./pamsel -e -dimubT\n");
         printf("      lists all requests and rejections (tab-separated, one per line) with date, rule-id, message and url\n");
-        printf("  sudo cat /var/log/apache2/error.log | sudo ./pamsel -im | sort | uniq -c\n");
-        printf("      how often a rule is triggered\n");
-        printf("  sudo cat /var/log/apache2/error.log | sudo ./pamsel -dim -x 920350,930130\n");
+        printf("  sudo ./pamsel -y -im | sort | uniq -c\n");
+        printf("      how often a rule was triggered yesterday \n");
+        printf("  sudo ./pamsel -e -dim -x 920350,930130\n");
         printf("      exclude rules from listing\n");
-        printf("  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu\n");
+        printf("  sudo ./pamsel -e -nrmu\n");
         printf("      -n gives every request an unique number...\n");
         printf("      ...which can be used to show the related info in audit-log:\n");
-        printf("  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu -A 136\n");
+        printf("  sudo ./pamsel -e -nrmu -A 136\n");
         printf("      show only audit-sections B and H, to reduce the amount of information:\n");
-        printf("  sudo cat /var/log/apache2/error.log | sudo ./pamsel -nrmu -A 136+BH\n");
+        printf("  sudo ./pamsel -e -nrmu -A 136+BH\n");
         printf("      '-': all, except,  '+': only these  (A is listed anyway)\n");
+        printf("  sudo ./pamsel -f anold.log --def\n");
+        printf("      parse other logfiles\n");
         printf("\n");
 }
 
